@@ -68,7 +68,9 @@ public class Eventi {
     }
 
     public synchronized boolean prenota(String nome, int posti) {
-        for (Evento e : eventi)
+        for (Evento e : eventi) {
+            System.out.println("PIPPOOOOOOOOOOOOOO");
+        }
 
     }
 
