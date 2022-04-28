@@ -7,6 +7,7 @@ public class Eventi {
         private final String nomeEvento;
         private int numPostiTot;
         private int numPostiOcc = 0;
+        private boolean isTerminato = false;
 
         public Evento (String nomeEvento, int numPostiTot) {
             this.nomeEvento = nomeEvento;
@@ -21,13 +22,15 @@ public class Eventi {
             return true;
         }
 
-        public boolean aggiungiPersone(int n) {
-            if (n <= getPostiDisponibili()) {
-                numPostiOcc += n;
-                return true;
-            }
+        public boolean aggiungiPersone(int n) throws InterruptedException {
+            while (n < getPostiDisponibili() && !isTerminato)
+                this.wait();
 
-            return false;
+            if (isTerminato)
+                return false;
+
+            numPostiOcc += n;
+            return true;
         }
 
         public String getNomeEvento() {
@@ -67,11 +70,29 @@ public class Eventi {
         throw new IllegalArgumentException("L'evento cercato non esiste");
     }
 
-    public synchronized boolean prenota(String nome, int posti) {
+    public synchronized boolean prenota(String nome, int posti) throws InterruptedException {
         for (Evento e : eventi) {
-            System.out.println("PIPPOOOOOOOOOOOOOO");
+            if (e.getNomeEvento().equals(nome)) {
+                return e.aggiungiPersone(posti);
+            }
         }
 
+        return false;
+    }
+
+    public synchronized boolean chiudi(String nome) {
+        for (Evento e : eventi)
+            if (e.getNomeEvento().equals(nome)) {
+                eventi.remove(e);
+                return true;
+            }
+
+        return false;
+    }
+
+    public void listaEventi() {
+        for (Evento e : eventi)
+            System.out.println("Evento: " + e.getNomeEvento() + "\t Posti disponibili: " + e.getPostiDisponibili());
     }
 
 }
